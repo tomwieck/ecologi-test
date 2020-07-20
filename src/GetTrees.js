@@ -1,12 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, PureComponent } from 'react';
 
+import { Treemap } from 'recharts';
 import {
-    LineChart,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Line,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
 } from "recharts";
+
+
+// need to have original unchanged data,
+// and a new array that can be modified and show in the current chart
+// filteredTrees
+
+// import {
+//     LineChart,
+//     XAxis,
+//     YAxis,
+//     CartesianGrid,
+//     Line,
+// } from "recharts";
 // pass in charting libray
 
 // filter by date
@@ -45,6 +62,8 @@ export default function GetTrees() {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [items, setItems] = useState([]);
+    const selectedDate = new Date().toISOString().split("T")[0];
+    console.log(selectedDate);
 
     // Note: the empty deps array [] means
     // this useEffect will run once
@@ -58,27 +77,9 @@ export default function GetTrees() {
 
                   formatResults(results);
 
-
-                  //  createdAt: "2020-07-16T22:16:02.114Z"
-                    // needs to be converted
-                  //   value: 1;
-                    // what does value mean? not unique
-
-                  // values need to be added up (generateTotalTrees())
-                  // and then saved in similar object matching the date
-
-                  // for each item, take its value and add it to
-                  // running total of previous value {
-                      // totalTrees: totalTrees + value
-                      // date: convertedDate )
-
-                  // similar to this, use milestones from their website
                   setIsLoaded(true);
                   setItems(results);
                 },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
                 (error) => {
                     console.log(error)
                     setIsLoaded(true);
@@ -93,20 +94,52 @@ export default function GetTrees() {
         return <div>Loading...</div>;
     } else {
         return (
-          // <ul>
-          //     {items.map((item, index) => (
-          //         <li key={index}>
-          //             {item.value}
-          //         </li>
-          //     ))}
-          // </ul>
-          //   <LineChart width={500} height={300} data={items}>
-          <LineChart width={1000} height={1000}  data={items}>
-            <XAxis dataKey="createdAt" />
-            <YAxis />
-            <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
-            <Line type="monotone" dataKey="value" stroke="#8884d8" />
-          </LineChart>
+          <div>
+            <label htmlFor="start">Start date:</label>
+
+            <input
+              type="date"
+              id="start"
+              value={"2020-07-20"}
+              min="2018-01-01"
+              max="2018-12-31"
+            />
+
+            <label htmlFor="end">End date:</label>
+
+            <input
+              type="date"
+              id="end"
+              value={"2020-07-20"}
+              min="2018-01-01"
+              max="2018-12-31"
+            />
+
+            <LineChart
+              width={1000}
+              height={500}
+              data={items}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="createdAt" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#8884d8"
+                activeDot={{ r: 8 }}
+              />
+              <Line type="monotone" dataKey="total" stroke="#82ca9d" />
+            </LineChart>
+          </div>
         );
     }
 }
